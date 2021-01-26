@@ -14,22 +14,39 @@ import time
 
 # Data is 6x10: 6 paramaters, 10 timestamps
 model = Sequential()
-cnn = Sequential()  # separate model for the cnn
+#cnn = Sequential()  # separate model for the cnn
 
 # sus input shape; check if shit goes wrong
-cnn.add(Conv1D(filters=32, kernel_size=1, activation='tanh', padding='same', input_shape=(10, 6)))
+#cnn.add(Conv1D(filters=32, kernel_size=1, activation='tanh', padding='same', input_shape=(10, 6)))
 
 # pooling
-cnn.add(MaxPool1D(pool_size=1, padding='same'))
+#cnn.add(MaxPool1D(pool_size=1, padding='same'))
 
 # paper says to add activation to MaxPool; kidna weird
-cnn.add(Activation(activations.relu))
+#cnn.add(Activation(activations.relu))
 
 # paper says nothing about flattening so idk
 #cnn.add(Flatten())
 
 
-model.add(TimeDistributed(cnn)(Input(shape=(10, 1, 6))))
+#model.add(TimeDistributed(cnn)(Input(shape=(10, 1, 6))))
+
+model.add(TimeDistributed(
+        Conv1D(filters=32, kernel_size=1, activation='tanh', padding='same', input_shape=(10, 6*10, 1))
+    ))
+
+model.add(TimeDistributed(
+        MaxPool1D(pool_size=1, padding='same')
+    ))
+
+model.add(TimeDistributed(
+        Activation(activations.relu)
+    ))
+
+
+#model.add(iFlatten())
+model.add(Reshape((10, 32), input_shape=()))
+
 
 # Apparently tf LSTM defaults to CuDNN when the following conditions are met:
 #  1. `activation` == `tanh`
@@ -38,8 +55,12 @@ model.add(TimeDistributed(cnn)(Input(shape=(10, 1, 6))))
 #  4. `unroll` is `False`
 #  5. `use_bias` is `True`
 #  6. Inputs are not masked or strictly right padded.
-model.add(LSTM(units=64, input_shape=(-1,6), activation='tanh'))
+#model.add(LSTM(units=64, input_shape=(-1,6), activation='tanh'))
+#model.add(LSTM(units=64, input_shape=(None, 1, 10, 32), activation='tanh'))
+model.add(LSTM(units=64, activation='tanh'))
 # ^ do i need to return sequences?
+#model.add()
+
 
 # single output layer
 # paper does not specify activation; going with tanh
@@ -77,8 +98,11 @@ with open('./data/train-sequences.pkl', 'rb') as f:
     random.shuffle(train_seq)
 
     for seq in train_seq:
-        train_x.append(seq[0])
-        train_y.append(seq[1])
+        x = seq[0].reshape(1, 10, 6)
+        y = seq[1].reshape(1, 1)
+
+        train_x.append(x)
+        train_y.append(y)
 
  
 with open('./data/test-sequences.pkl', 'rb') as f:
@@ -92,8 +116,11 @@ with open('./data/test-sequences.pkl', 'rb') as f:
     random.shuffle(test_seq)
 
     for seq in test_seq:
-        test_x.append(seq[0])
-        test_y.append(seq[1])
+        x = seq[0].reshape(1, 10, 6)
+        y = seq[1].reshape(1, 1)
+
+        test_x.append(x)
+        test_y.append(y)
 
  
 
@@ -105,14 +132,14 @@ random.shuffle(test_seq)
 
 
 MODEL_NAME = f'CNN-LSTM-v1-{int(time.time())}'
-EPOCHS=20
+EPOCHS=100
 BATCH_SIZE = 64
 
 # tensorboard code from tutorial
 tensorboard = TensorBoard(log_dir=f'./logs/{MODEL_NAME}')
 
-filepath = 'CNN-LSTM-{epoch:02d}-{val_acc:.3f}'
-checkpoint = ModelCheckpoint('./models/{}.model'.format(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max'))
+filepath = 'CNN-LSTM-{epoch:02d}-{val_accuracy:.3f}'
+checkpoint = ModelCheckpoint('./models/{}.hd5'.format(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max'))
 
 print(train_x[0])
 
