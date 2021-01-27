@@ -1,4 +1,4 @@
-import pickle
+import pickle5 as pickle
 from tqdm import tqdm as tqdm
 import numpy as np
 import tensorflow as tf
@@ -69,7 +69,7 @@ model.add(Dense(units=1, activation='tanh'))
 optim = tf.keras.optimizers.Adam(lr=0.001, decay=1e-6)
 
 # mean absolute error loss compiling
-model.compile(loss='mae', optimizer=optim, metrics=['accuracy'])
+model.compile(loss='mae', optimizer=optim, metrics=['mae'])
 
 
 
@@ -138,8 +138,8 @@ BATCH_SIZE = 64
 # tensorboard code from tutorial
 tensorboard = TensorBoard(log_dir=f'./logs/{MODEL_NAME}')
 
-filepath = 'CNN-LSTM-{epoch:02d}-{val_accuracy:.3f}'
-checkpoint = ModelCheckpoint('./models/{}.hd5'.format(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max'))
+filepath = 'CNN-LSTM-{epoch:02d}-{val_mae:.3f}'
+checkpoint = ModelCheckpoint('./models/{}.hd5'.format(filepath, monitor='val_mae', verbose=1, save_best_only=True, mode='max'))
 
 print(train_x[0])
 
