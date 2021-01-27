@@ -35,7 +35,7 @@ FILTERS=4
 
 
 # trying not to use inputshape
-model.add(Conv1D(filters=FILTERS, kernel_size=1, activation='leakyrelu', padding='same'))
+model.add(Conv1D(filters=FILTERS, kernel_size=1, activation='tanh', padding='same'))
 
 #model.add(Reshape((10, 32, 1)))
 
@@ -61,14 +61,14 @@ model.add(Reshape((10, FILTERS)))
 #  6. Inputs are not masked or strictly right padded.
 #model.add(LSTM(units=64, input_shape=(-1,6), activation='tanh'))
 #model.add(LSTM(units=64, input_shape=(None, 1, 10, 32), activation='tanh'))
-model.add(LSTM(units=4, activation='leakyrelu'))
+model.add(LSTM(units=4, activation='tanh'))
 # ^ do i need to return sequences?
 #model.add()
 
 
 # single output layer
 # paper does not specify activation; going with tanh
-model.add(Dense(units=1, activation='leakyrelu'))
+model.add(Dense(units=1, activation='tanh'))
 
 
 #optim = tf.keras.optimizers.Adam(lr=0.001, decay=1e-6)
@@ -94,44 +94,21 @@ test_y = []
 
 
 #loading and merging data
-with open('./data/train-sequences.pkl', 'rb') as f:
-    all_seq = pickle.load(f)
+with open('./data/new-train.pkl', 'rb') as f:
+    train = pickle.load(f)
+    for seq in train:
+        train_x.append(seq[0].reshape(10,1,6))
+        train_y.append(seq[1].reshape(1,1))
 
-    train_seq=[]
 
-    for ticker in all_seq:
-        train_seq.extend(all_seq[ticker])
 
-    random.shuffle(train_seq)
+#loading and merging data
+with open('./data/new-test.pkl', 'rb') as f:
+    test = pickle.load(f)
+    for seq in test:
+        test_x.append(seq[0].reshape(10,1,6))
+        test_y.append(seq[1].reshape(1,1))
 
-    for seq in train_seq:
-        x = seq[0].reshape(10, 1, 6)
-        y = seq[1].reshape(1, 1)
-       # y = seq[1]
-
-        train_x.append(x)
-        train_y.append(y)
-
- 
-with open('./data/test-sequences.pkl', 'rb') as f:
-    all_seq = pickle.load(f)
-
-    test_seq=[]
-
-    for ticker in all_seq:
-        test_seq.extend(all_seq[ticker])
-
-    random.shuffle(test_seq)
-
-    for seq in test_seq:
-        x = seq[0].reshape(10,1, 6)
-        y = seq[1].reshape(1, 1)
-#        y = seq[1]
-
-        test_x.append(x)
-        test_y.append(y)
-
- 
 
 
 MODEL_NAME = f'CNN-LSTM-v2-{int(time.time())}'
