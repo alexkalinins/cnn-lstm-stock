@@ -31,7 +31,7 @@ model = Sequential()
 
 #model.add(TimeDistributed(cnn)(Input(shape=(10, 1, 6))))
 
-FILTERS=4
+FILTERS=32
 
 
 # trying not to use inputshape
@@ -61,7 +61,7 @@ model.add(Reshape((10, FILTERS)))
 #  6. Inputs are not masked or strictly right padded.
 #model.add(LSTM(units=64, input_shape=(-1,6), activation='tanh'))
 #model.add(LSTM(units=64, input_shape=(None, 1, 10, 32), activation='tanh'))
-model.add(LSTM(units=4, activation='tanh'))
+model.add(LSTM(units=64, activation='tanh'))
 # ^ do i need to return sequences?
 #model.add()
 
@@ -72,7 +72,7 @@ model.add(Dense(units=1, activation='tanh'))
 
 
 #optim = tf.keras.optimizers.Adam(lr=0.001, decay=1e-6)
-optim = tf.keras.optimizers.Adam(lr=0.00001, clipnorm=1.)
+optim = tf.keras.optimizers.Adam(lr=0.001, decay = 1e-6, clipnorm=1.)
 
 # mean absolute error loss compiling
 model.compile(loss='mae', optimizer=optim, metrics=['mae'])
