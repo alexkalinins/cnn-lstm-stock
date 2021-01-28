@@ -6,7 +6,9 @@ import sys
 import tensorflow as tf
 from tensorflow import keras
 
-MODEL_PATH = './models/CNN-LSTM-26-0.219.hd5' 
+MODEL_1 = './models/day1/NEXT1-E19.h5' 
+MODEL_2 = './models/day2/NEXT2-E18.h5' 
+MODEL_3 = './models/day3/NEXT3-E6.h5' 
 
 if len(sys.argv) != 2:
     print('Usage: predict.py <TICKER>')
@@ -47,20 +49,31 @@ for column in last10.columns:
 
 model_in = last10.values.reshape(1, 10, 1, 6)
 
-print('Done! Loading model')
+print('Done! Loading models')
 
-model = keras.models.load_model(MODEL_PATH)
+model1 = keras.models.load_model(MODEL_1)
+model2 = keras.models.load_model(MODEL_2)
+model3 = keras.models.load_model(MODEL_3)
 
 print('Done! Making prediction')
-model_out = model.predict(model_in, batch_size=1)
+model_out_1 = model1.predict(model_in, batch_size=1)
+model_out_2 = model2.predict(model_in, batch_size=1)
+model_out_3 = model3.predict(model_in, batch_size=1)
 
-output = model_out.reshape(1)
+output1 = model_out_1[0][0]
+output2 = model_out_2[0][0]
+output3 = model_out_3[0][0]
 
 # destandardizing the input
-output = output * std + mean
+output1 = round(output1 * std + mean, 2)
+output2 = round(output2 * std + mean, 2)
+output3 = round(output3 * std + mean, 2)
 
+print('')
 print(f'=== PREDICTION ({ticker}) ===')
-print(f'Next Day Close:\t{output}')
+print(f'Today+1:\t${output1}')
+print(f'Today+2:\t${output2}')
+print(f'Today+3:\t${output3}')
 
 
 
