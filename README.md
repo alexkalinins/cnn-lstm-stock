@@ -23,11 +23,21 @@ python3 predict.py <TICKER>
 **DISCLAIMER:** The predictions made by this algorithm should not be taken as financial advice. I am not responsible for any losses caused
 as a result of using this model.
 
+## TODO
+
+This project is still ongoing. The accuracy of the prediction still leaves much to be desired. The project can still be improved:
+
+ - [ ] Better data processing; z-score standardization may not be enough.
+ - [ ] More balanced selection of training tickers; there are more bullish stocks than bearish.
+ - [ ] Experimentation with different sequence lengths.
+ - [ ] Experimentation with different architectures (might mean renaming the repo :wink:).
+ - [ ] Plotting.
+
+Contributions to the repo are very welcome.
 
 ## Implementation Details
 
-The *final* model is implemented in `model1.py`. The architecture does not differ too much from Lu et al., but adjustments were made to improve the loss.
-The following is the architecture in `model1.py`
+The *current* model is implemented in `model1.py`. The architecture does not differ too much from Lu et al., but adjustments were made to improve the loss. There is still work to be done to improve the model. The following is the architecture in `model1.py`
 
  1. The input data consists of 10 time steps of 6 variables each.
  2. A 1D Convolution (kernel size of 1; 32 filters) is applied to the data. Each filter is akin to a dot product between a time step and some parameter vector.
